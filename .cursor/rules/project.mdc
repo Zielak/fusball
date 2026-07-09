@@ -1,0 +1,28 @@
+---
+description: Fusball project overview and conventions
+alwaysApply: true
+---
+
+# Fusball Project
+
+Phaser 4 + SvelteKit foosball game. Read `AGENTS.md` for full context.
+
+## Stack
+
+- Phaser 4.0.0 (Arcade physics), Svelte 5, SvelteKit, TypeScript, Vite
+- Dev: `npm run dev` (port 8080). Build: `npm run build`
+
+## Conventions
+
+- Game logic in `src/game/` — Svelte is shell only (`PhaserGame.svelte`, `+page.svelte`)
+- All dimensions/tuning in `src/game/config/gameConfig.ts`
+- TS imports use `.js` suffix: `import { X } from "./Foo.js"`
+- New scenes must `EventBus.emit("current-scene-ready", this)` in `create()`
+- Prefer procedural `Graphics` over new assets for MVP placeholders
+- Minimize scope — match existing entity/system split
+
+## Do not
+
+- Change `ssr = false` in `+layout.ts` without strong reason
+- Hardcode table/stick/ball sizes outside `gameConfig.ts`
+- Duplicate player2 stick config — use `getMirroredPlayerConfig()`

@@ -1,12 +1,20 @@
-# Phaser Svelte Template
+# Fusball
 
-This is a Phaser 3 project template that uses the Svelte framework, TypeScript and Vite for bundling. It includes a bridge for Svelte to Phaser game communication, hot-reloading for quick development workflow and scripts to generate production-ready builds.
+Top-down 1v1 foosball game built with Phaser 4 + SvelteKit.
+
+**Agent / contributor context:** see [`AGENTS.md`](AGENTS.md) and [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+---
+
+## Template notes
+
+This project started from the Phaser Svelte Template. It uses the Svelte framework, TypeScript and Vite for bundling. It includes a bridge for Svelte to Phaser game communication, hot-reloading for quick development workflow and scripts to generate production-ready builds.
 
 ### Versions
 
 This template has been updated for:
 
-- [Phaser 3.90.0](https://github.com/phaserjs/phaser)
+- [Phaser 4.0.0](https://github.com/phaserjs/phaser)
 - [Svelte 5.23.1](https://github.com/sveltejs/kit)
 - [Vite 6.3.1](https://github.com/vitejs/vite)
 - [TypeScript 5.7.2](https://github.com/microsoft/TypeScript)

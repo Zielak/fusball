@@ -6,7 +6,7 @@ import {
   type StickDef,
 } from "../config/gameConfig.js";
 import type { PlayBounds } from "./Table.js";
-import { computePawnOffsets } from "../utils/spacing.js";
+import { computeStickLayout } from "../utils/spacing.js";
 
 export class Stick extends GameObjects.Container {
   readonly stickIndex: number;
@@ -14,9 +14,11 @@ export class Stick extends GameObjects.Container {
   readonly pawnBodies: Physics.Arcade.Image[] = [];
 
   private readonly rodGraphics: GameObjects.Graphics;
+  private readonly bumperGraphics: GameObjects.Graphics;
   private readonly pawnGraphics: GameObjects.Graphics[] = [];
   private readonly pawnOffsets: number[];
-  private readonly rodSpan: number;
+  private readonly bumperLocalReach: number;
+  private readonly rodLength: number;
 
   slideY: number;
   rodAngle: number;
@@ -33,27 +35,35 @@ export class Stick extends GameObjects.Container {
     pawnGroup: Physics.Arcade.StaticGroup,
   ) {
     const worldX = playBounds.left + stickDef.xOffset;
-    const bumperTop = stickDef.bumperTop * playBounds.height;
-    const bumperBottom = stickDef.bumperBottom * playBounds.height;
+    const layout = computeStickLayout(
+      stickDef,
+      playBounds.top,
+      playBounds.bottom,
+      playBounds.height,
+      gameConfig.pawn.radius,
+      gameConfig.table.wallThickness,
+      gameConfig.stick.rodWallExtension,
+    );
 
-    const minSlideY = playBounds.top + bumperTop;
-    const maxSlideY = playBounds.bottom - bumperBottom;
-    const middleSlideY = (minSlideY + maxSlideY) / 2;
-
-    super(scene, worldX, middleSlideY);
+    super(scene, worldX, layout.initialSlideY);
 
     this.stickIndex = stickIndex;
     this.playerSide = playerConfig.side;
-    this.minSlideY = minSlideY;
-    this.maxSlideY = maxSlideY;
-    this.slideY = middleSlideY;
+    this.minSlideY = layout.minSlideY;
+    this.maxSlideY = layout.maxSlideY;
+    this.slideY = layout.initialSlideY;
     this.rodAngle = gameConfig.stick.defaultRotation;
-    this.rodSpan = maxSlideY - minSlideY;
-    this.pawnOffsets = computePawnOffsets(stickDef.pawnCount, this.rodSpan);
+    this.bumperLocalReach = layout.bumperLocalReach;
+    this.rodLength = layout.rodLength;
+    this.pawnOffsets = layout.pawnOffsets;
 
     this.rodGraphics = scene.add.graphics();
     this.drawRod(playerConfig.rodColor);
     this.add(this.rodGraphics);
+
+    this.bumperGraphics = scene.add.graphics();
+    this.drawBumpers();
+    this.add(this.bumperGraphics);
 
     for (let i = 0; i < stickDef.pawnCount; i++) {
       const pawnGraphic = scene.add.graphics();
@@ -73,7 +83,7 @@ export class Stick extends GameObjects.Container {
 
   private drawRod(color: number): void {
     const { rodWidth } = gameConfig.stick;
-    const halfSpan = this.rodSpan / 2;
+    const halfSpan = this.rodLength / 2;
 
     this.rodGraphics.clear();
     this.rodGraphics.lineStyle(rodWidth, color, 1);
@@ -81,6 +91,27 @@ export class Stick extends GameObjects.Container {
     this.rodGraphics.moveTo(0, -halfSpan);
     this.rodGraphics.lineTo(0, halfSpan);
     this.rodGraphics.strokePath();
+  }
+
+  private drawBumpers(): void {
+    const { bumperWidth, bumperThickness, bumperColor } = gameConfig.stick;
+    const halfWidth = bumperWidth / 2;
+    const halfThickness = bumperThickness / 2;
+
+    this.bumperGraphics.clear();
+    this.bumperGraphics.fillStyle(bumperColor, 1);
+    this.bumperGraphics.fillRect(
+      -halfWidth,
+      -this.bumperLocalReach - halfThickness,
+      bumperWidth,
+      bumperThickness,
+    );
+    this.bumperGraphics.fillRect(
+      -halfWidth,
+      this.bumperLocalReach - halfThickness,
+      bumperWidth,
+      bumperThickness,
+    );
   }
 
   private drawPawn(graphics: GameObjects.Graphics, color: number): void {

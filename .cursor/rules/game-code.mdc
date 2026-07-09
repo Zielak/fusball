@@ -1,0 +1,39 @@
+---
+description: Phaser game code patterns for entities, systems, scenes
+globs: src/game/**
+alwaysApply: false
+---
+
+# Game Code Patterns
+
+## File roles
+
+| Path | Role |
+|------|------|
+| `entities/Table.ts` | Play bounds, wall static group, goal zones |
+| `entities/Stick.ts` | Container rod + pawns, slide/rotate, `syncPhysics()` |
+| `entities/Ball.ts` | Arcade image, bounce/drag from config |
+| `systems/StickInputController.ts` | Keyboard columns → `setSlideTarget()` |
+| `scenes/Game.ts` | Spawn all, colliders, `update()` loop |
+
+## Stick physics
+
+Pawns use invisible `StaticGroup` bodies. Each frame after move/rotate:
+
+```ts
+body.setPosition(worldX, worldY);
+body.refreshBody();
+```
+
+Ball collides with `table.walls` and shared `pawnGroup`.
+
+## Adding a stick feature
+
+1. State + method on `Stick` (e.g. `setRodRotation`)
+2. Input wiring in new or existing system class
+3. Call `stick.update(delta)` from `Game.update` for player sticks
+4. Never skip `syncPhysics()` after transform changes
+
+## Scene bootstrap order
+
+`generateTextures()` → `Table` → `pawnGroup` → sticks → `Ball` → colliders → input → `EventBus.emit`

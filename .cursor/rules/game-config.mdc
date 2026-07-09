@@ -1,0 +1,34 @@
+---
+description: gameConfig.ts tuning reference
+globs: src/game/config/**
+alwaysApply: false
+---
+
+# gameConfig.ts
+
+Single source of truth for all game dimensions and feel.
+
+## Key sections
+
+- `canvas` — Phaser game size (also in `main.ts`)
+- `table.playWidth/Height`, `wallThickness`, `goal.width/depth`
+- `ball.radius`, `bounce`, `drag`, `maxSpeed`
+- `stick.slideSpeed`, `slideMode` (`smooth`|`snap`), `rotateSpeed`
+- `players.player1.sticks[]` — `role`, `pawnCount`, `bumperTop/Bottom`, `xOffset`
+- `players.player2` — getter, mirrored from player1
+- `input.columns` — `stickIndex` + `keys.top/middle/bottom`
+
+## Bumper math
+
+```
+minSlideY = playTop + bumperTop * playHeight
+maxSlideY = playBottom - bumperBottom * playHeight
+```
+
+## Pawn spacing
+
+`computePawnOffsets(count, rodSpan)` in `utils/spacing.ts` — equal distribution along rod.
+
+## Mirror
+
+`getMirroredPlayerConfig(player1)` flips `side` and `xOffset` for player2. Edit player1 only.

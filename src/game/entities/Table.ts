@@ -34,11 +34,12 @@ export class Table extends GameObjects.Container {
 
     this.walls = scene.physics.add.staticGroup();
     this.goalZones = {
-      left: scene.add.zone(0, 0, table.goal.depth, table.goal.width),
-      right: scene.add.zone(0, 0, table.goal.depth, table.goal.width),
+      left: scene.add.zone(0, 0, table.wallThickness, table.goal.width),
+      right: scene.add.zone(0, 0, table.wallThickness, table.goal.width),
     };
 
     this.drawSurface();
+    this.drawGoals();
     this.createWalls();
     this.positionGoalZones();
 
@@ -48,22 +49,47 @@ export class Table extends GameObjects.Container {
   private drawSurface(): void {
     const { table } = gameConfig;
     const graphics = this.scene.add.graphics();
+    const { left, right, top, bottom, width, height } = this.playBounds;
+    const halfGoal = table.goal.width / 2;
+    const goalTop = -halfGoal;
+    const goalBottom = halfGoal;
 
     graphics.fillStyle(table.surfaceColor, 1);
-    graphics.fillRect(
-      this.playBounds.left,
-      this.playBounds.top,
-      table.playWidth,
-      table.playHeight,
-    );
+    graphics.fillRect(left, top, width, height);
 
     graphics.lineStyle(table.wallThickness, table.wallColor, 1);
-    graphics.strokeRect(
-      this.playBounds.left,
-      this.playBounds.top,
-      table.playWidth,
-      table.playHeight,
-    );
+
+    graphics.beginPath();
+    graphics.moveTo(left, top);
+    graphics.lineTo(right, top);
+    graphics.moveTo(left, bottom);
+    graphics.lineTo(right, bottom);
+    graphics.moveTo(left, top);
+    graphics.lineTo(left, goalTop);
+    graphics.moveTo(left, goalBottom);
+    graphics.lineTo(left, bottom);
+    graphics.moveTo(right, top);
+    graphics.lineTo(right, goalTop);
+    graphics.moveTo(right, goalBottom);
+    graphics.lineTo(right, bottom);
+    graphics.strokePath();
+
+    this.add(graphics);
+  }
+
+  private drawGoals(): void {
+    const { table } = gameConfig;
+    const graphics = this.scene.add.graphics();
+    const { left, right } = this.playBounds;
+    const halfGoal = table.goal.width / 2;
+    const goalTop = -halfGoal;
+    const { width: goalWidth, holeColor } = table.goal;
+    const { wallThickness } = table;
+    const halfWall = wallThickness / 2;
+
+    graphics.fillStyle(holeColor, 1);
+    graphics.fillRect(left - halfWall, goalTop, wallThickness, goalWidth);
+    graphics.fillRect(right - halfWall, goalTop, wallThickness, goalWidth);
 
     this.add(graphics);
   }
@@ -75,7 +101,12 @@ export class Table extends GameObjects.Container {
     const goalTop = -halfGoal;
     const goalBottom = halfGoal;
 
-    this.addWallSegment(left - table.wallThickness / 2, top, table.wallThickness, goalTop - top);
+    this.addWallSegment(
+      left - table.wallThickness / 2,
+      top,
+      table.wallThickness,
+      goalTop - top,
+    );
     this.addWallSegment(
       left - table.wallThickness / 2,
       goalBottom,
@@ -83,7 +114,12 @@ export class Table extends GameObjects.Container {
       bottom - goalBottom,
     );
 
-    this.addWallSegment(right + table.wallThickness / 2, top, table.wallThickness, goalTop - top);
+    this.addWallSegment(
+      right + table.wallThickness / 2,
+      top,
+      table.wallThickness,
+      goalTop - top,
+    );
     this.addWallSegment(
       right + table.wallThickness / 2,
       goalBottom,
@@ -91,16 +127,35 @@ export class Table extends GameObjects.Container {
       bottom - goalBottom,
     );
 
-    this.addWallSegment(0, top - table.wallThickness / 2, width, table.wallThickness);
-    this.addWallSegment(0, bottom + table.wallThickness / 2, width, table.wallThickness);
+    this.addWallSegment(
+      0,
+      top - table.wallThickness / 2,
+      width,
+      table.wallThickness,
+    );
+    this.addWallSegment(
+      0,
+      bottom + table.wallThickness / 2,
+      width,
+      table.wallThickness,
+    );
   }
 
-  private addWallSegment(x: number, y: number, width: number, height: number): void {
+  private addWallSegment(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ): void {
     if (width <= 0 || height <= 0) {
       return;
     }
 
-    const wall = this.walls.create(x, y, "physics-pixel") as Physics.Arcade.Image;
+    const wall = this.walls.create(
+      x,
+      y,
+      "physics-pixel",
+    ) as Physics.Arcade.Image;
     wall.setDisplaySize(width, height);
     wall.refreshBody();
   }
@@ -108,18 +163,25 @@ export class Table extends GameObjects.Container {
   private positionGoalZones(): void {
     const { table } = gameConfig;
     const { left, right } = this.playBounds;
+    const wall = table.wallThickness;
 
-    this.goalZones.left.setPosition(left - table.goal.depth / 2, 0);
-    this.goalZones.left.setSize(table.goal.depth, table.goal.width);
+    this.goalZones.left.setPosition(left - wall / 2, 0);
+    this.goalZones.left.setSize(wall, table.goal.width);
 
-    this.goalZones.right.setPosition(right + table.goal.depth / 2, 0);
-    this.goalZones.right.setSize(table.goal.depth, table.goal.width);
+    this.goalZones.right.setPosition(right + wall / 2, 0);
+    this.goalZones.right.setSize(wall, table.goal.width);
   }
 
   getWorldPlayBounds(): PlayBounds {
     const matrix = this.getWorldTransformMatrix();
-    const topLeft = matrix.transformPoint(this.playBounds.left, this.playBounds.top);
-    const bottomRight = matrix.transformPoint(this.playBounds.right, this.playBounds.bottom);
+    const topLeft = matrix.transformPoint(
+      this.playBounds.left,
+      this.playBounds.top,
+    );
+    const bottomRight = matrix.transformPoint(
+      this.playBounds.right,
+      this.playBounds.bottom,
+    );
 
     return {
       left: topLeft.x,
