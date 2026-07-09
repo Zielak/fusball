@@ -15,7 +15,6 @@ if (now - lastMessageTime > MESSAGE_INTERVAL_MS) {
 }
 
 export default defineConfig({
-  base: "./",
   plugins: [sveltekit()],
   logLevel: "error",
   build: {
