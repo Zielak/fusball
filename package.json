@@ -1,0 +1,32 @@
+{
+  "private": true,
+  "name": "fusball",
+  "version": "1.0.0",
+  "license": "NONE",
+  "scripts": {
+    "dev": "vite --config vite/config.dev.mjs",
+    "build": "vite build --config vite/config.prod.mjs",
+    "dev-nolog": "vite --config vite/config.dev.mjs",
+    "build-nolog": "vite build --config vite/config.prod.mjs",
+    "preview": "vite preview --outDir build"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "6.0.0",
+    "@sveltejs/adapter-static": "3.0.8",
+    "@sveltejs/kit": "2.20.7",
+    "@sveltejs/vite-plugin-svelte": "5.0.3",
+    "@tsconfig/svelte": "^5.0.4",
+    "prettier": "^3.9.5",
+    "prettier-plugin-svelte": "^4.1.1",
+    "svelte": "5.23.1",
+    "svelte-check": "^4.0.2",
+    "terser": "5.39.0",
+    "tslib": "2.7.0",
+    "typescript": "5.7.2",
+    "vite": "6.3.1"
+  },
+  "type": "module",
+  "dependencies": {
+    "phaser": "4.0.0"
+  }
+}
