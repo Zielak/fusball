@@ -129,11 +129,12 @@ export const gameConfig = {
   },
   stick: {
     rodWidth: 6,
-    slideSpeed: 400,
+    /** Lerp rate per second — higher = snappier rod slide */
+    slideLerp: 18,
     slideMode: "smooth" as SlideMode,
     rotateSpeed: 2.5,
     defaultRotation: 0,
-    rodWallExtension: 10,
+    rodWallExtension: 40,
     bumperWidth: 28,
     bumperThickness: 10,
     bumperColor: 0x000000,
@@ -156,6 +157,8 @@ export const gameConfig = {
   input: {
     layout: KEYBOARD_LAYOUT,
     columns: resolveInputColumns(KEYBOARD_LAYOUT),
+    /** Rod Y nudge per pixel of mouse movement while a rod key is held */
+    mouseSensitivity: 0.3,
   },
 } as const;
 

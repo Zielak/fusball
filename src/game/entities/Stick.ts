@@ -71,7 +71,11 @@ export class Stick extends GameObjects.Container {
       this.pawnGraphics.push(pawnGraphic);
       this.add(pawnGraphic);
 
-      const pawnBody = pawnGroup.create(0, 0, "physics-pixel") as Physics.Arcade.Image;
+      const pawnBody = pawnGroup.create(
+        0,
+        0,
+        "physics-pixel",
+      ) as Physics.Arcade.Image;
       pawnBody.setCircle(gameConfig.pawn.radius);
       pawnBody.setVisible(false);
       this.pawnBodies.push(pawnBody);
@@ -130,16 +134,29 @@ export class Stick extends GameObjects.Container {
       return;
     }
 
+    this.slideTargetY = this.resolveSlideTargetY(target);
+  }
+
+  adjustSlideTarget(deltaY: number): void {
+    if (this.slideTargetY === null) {
+      return;
+    }
+
+    this.slideTargetY = PhaserMath.Clamp(
+      this.slideTargetY + deltaY,
+      this.minSlideY,
+      this.maxSlideY,
+    );
+  }
+
+  private resolveSlideTargetY(target: SlideTarget): number {
     switch (target) {
       case "top":
-        this.slideTargetY = this.minSlideY;
-        break;
+        return this.minSlideY;
       case "middle":
-        this.slideTargetY = (this.minSlideY + this.maxSlideY) / 2;
-        break;
+        return (this.minSlideY + this.maxSlideY) / 2;
       case "bottom":
-        this.slideTargetY = this.maxSlideY;
-        break;
+        return this.maxSlideY;
     }
   }
 
@@ -151,13 +168,19 @@ export class Stick extends GameObjects.Container {
 
   update(deltaMs: number): void {
     if (this.slideTargetY !== null) {
-      const maxStep = (gameConfig.stick.slideSpeed * deltaMs) / 1000;
-      const distance = this.slideTargetY - this.slideY;
-
-      if (Math.abs(distance) <= maxStep) {
+      if (gameConfig.stick.slideMode === "snap") {
         this.slideY = this.slideTargetY;
       } else {
-        this.slideY += Math.sign(distance) * maxStep;
+        const t = PhaserMath.Clamp(
+          gameConfig.stick.slideLerp * (deltaMs / 1000),
+          0,
+          1,
+        );
+        this.slideY = PhaserMath.Linear(this.slideY, this.slideTargetY, t);
+
+        if (Math.abs(this.slideTargetY - this.slideY) < 0.5) {
+          this.slideY = this.slideTargetY;
+        }
       }
 
       this.y = this.slideY;

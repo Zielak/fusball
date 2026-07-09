@@ -71,16 +71,21 @@ export function computeStickLayout(
   );
   const initialSlideY = (minSlideY + maxSlideY) / 2;
 
-  const wallExtension = wallThickness + rodWallExtension;
-  const rodHalfForTopSlide = minSlideY - playTop + wallExtension;
-  const rodHalfForBottomSlide = playBottom - maxSlideY + wallExtension;
+  const protrusion = wallThickness + rodWallExtension;
+  const rodHalfAtMinSlide = Math.max(
+    minSlideY - playTop + protrusion,
+    playBottom + protrusion - minSlideY,
+  );
+  const rodHalfAtMaxSlide = Math.max(
+    maxSlideY - playTop + protrusion,
+    playBottom + protrusion - maxSlideY,
+  );
   const maxPawnReach = pawnOffsets.length > 0 ? Math.max(...pawnOffsets.map(Math.abs)) : 0;
   const visualRodHalf = Math.max(
-    layoutRodHalf,
-    rodHalfForTopSlide,
-    rodHalfForBottomSlide,
-    bumperLocalReach,
-    maxPawnReach,
+    rodHalfAtMinSlide,
+    rodHalfAtMaxSlide,
+    bumperLocalReach + protrusion,
+    maxPawnReach + protrusion,
   );
 
   return {
